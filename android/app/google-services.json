@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "827590881120",
+    "project_id": "internhub-app-a3440",
+    "storage_bucket": "internhub-app-a3440.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:827590881120:android:239723a9b5ff94fb937805",
+        "android_client_info": {
+          "package_name": "com.example.internship_finder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdsM53uxmQwz2wo4XEwhQzxMWlSqBe_Uk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
