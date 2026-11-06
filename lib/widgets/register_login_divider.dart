@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-class RegisterLoginDevider extends StatelessWidget {
+class RegisterLoginDivider extends StatelessWidget {
   final String text;
-  const RegisterLoginDevider({super.key, required this.text});
+  const RegisterLoginDivider({super.key, required this.text});
 
   @override
   Widget build(BuildContext context) {

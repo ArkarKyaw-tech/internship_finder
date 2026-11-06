@@ -3,7 +3,7 @@ import 'package:internship_finder/providers/auth_provider.dart';
 import 'package:internship_finder/views/register_page.dart';
 import 'package:internship_finder/widgets/auth_text_field.dart';
 import 'package:internship_finder/widgets/register_login_button.dart';
-import 'package:internship_finder/widgets/register_login_devider.dart';
+import 'package:internship_finder/widgets/register_login_divider.dart';
 import 'package:internship_finder/widgets/register_login_header.dart';
 import 'package:internship_finder/widgets/register_login_social_button.dart';
 import 'package:provider/provider.dart';
@@ -22,17 +22,17 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
 
   bool _isPasswordVisible = false;
-  bool _remeberMe = false;
+  bool _rememberMe = false;
 
   Future<void> _submit() async {
     FocusScope.of(context).unfocus();
 
     if (!_formKey.currentState!.validate()) return;
-    if (_remeberMe != true) return;
+    if (_rememberMe != true) return;
 
-    final authProviter = context.read<AuthController>();
+    final authProvider = context.read<AuthController>();
 
-    final success = await authProviter.login(
+    final success = await authProvider.login(
       email: _emailController.text.trim(),
       password: _passwordController.text,
     );
@@ -47,7 +47,7 @@ class _LoginPageState extends State<LoginPage> {
       SnackBar(
         backgroundColor: Colors.redAccent,
         content: Text(
-          authProviter.errorMessage ?? 'Login failed',
+          authProvider.errorMessage ?? 'Login failed',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
         ),
       ),
@@ -131,42 +131,33 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 14),
+                    // Remember Me + Forgot Password
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Checkbox(
-                          value: _remeberMe,
-                          onChanged: (value) {
-                            setState(() {
-                              _remeberMe = value ?? false;
-                            });
-                          },
-                          activeColor: Color(0xFF3549ED),
-                          side: BorderSide(
-                            color: _remeberMe ? Color(0xFF14203D) : Colors.red,
-                            width: 2,
-                          ),
-                        ),
                         Flexible(
-                          child: Text(
-                            'Remember me',
-                            style: TextStyle(
-                              color: _remeberMe
-                                  ? Color(0xFF14203D)
-                                  : Colors.red,
-                              fontSize: 13,
+                          child: CheckboxListTile(
+                            contentPadding: EdgeInsets.zero,
+                            controlAffinity: ListTileControlAffinity.leading,
+                            title: Text(
+                              'Remember Me',
+                              style: TextStyle(fontSize: 13),
                             ),
+                            value: _rememberMe,
+                            dense: true,
+                            visualDensity: VisualDensity.compact,
+                            onChanged: (value) {
+                              setState(() {
+                                _rememberMe = value ?? false;
+                              });
+                            },
                           ),
                         ),
 
                         TextButton(
                           onPressed: () {},
                           child: Text(
-                            'Forgot password?',
-                            style: TextStyle(
-                              color: Color(0xFF3549ED),
-                              fontWeight: FontWeight.w600,
-                            ),
+                            'Forgot Password',
+                            style: TextStyle(fontSize: 12),
                           ),
                         ),
                       ],
@@ -179,7 +170,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
 
               const SizedBox(height: 20),
-              RegisterLoginDevider(text: 'Or continue with'),
+              RegisterLoginDivider(text: 'Or continue with'),
               const SizedBox(height: 18),
               Row(
                 children: [
@@ -237,7 +228,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Join our community and discover excting internship opportunities.',
+                    'Join our community and discover exiting internship opportunities.',
                     style: TextStyle(color: Color(0xFF7D879A)),
                   ),
                   const SizedBox(height: 8),

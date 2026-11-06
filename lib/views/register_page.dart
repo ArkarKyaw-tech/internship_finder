@@ -3,7 +3,7 @@ import 'package:internship_finder/providers/auth_provider.dart';
 import 'package:internship_finder/views/login_page.dart';
 import 'package:internship_finder/widgets/auth_text_field.dart';
 import 'package:internship_finder/widgets/register_login_button.dart';
-import 'package:internship_finder/widgets/register_login_devider.dart';
+import 'package:internship_finder/widgets/register_login_divider.dart';
 import 'package:internship_finder/widgets/register_login_header.dart';
 import 'package:internship_finder/widgets/register_login_social_button.dart';
 import 'package:provider/provider.dart';
@@ -32,10 +32,12 @@ class _RegisterPageState extends State<RegisterPage> {
 
     if (!_formKey.currentState!.validate()) return;
 
-    final authProviter = context.read<AuthController>();
+    final authProvider = context.read<AuthController>();
 
-    final success = await authProviter.register(
+    final success = await authProvider.register(
+      name: _nameController.text.trim(),
       email: _emailController.text.trim(),
+      phone: _phoneController.text.trim(),
       password: _passwordController.text,
     );
 
@@ -51,7 +53,7 @@ class _RegisterPageState extends State<RegisterPage> {
       SnackBar(
         backgroundColor: Colors.redAccent,
         content: Text(
-          authProviter.errorMessage ?? 'Register failed',
+          authProvider.errorMessage ?? 'Register failed',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
         ),
       ),
@@ -99,6 +101,17 @@ class _RegisterPageState extends State<RegisterPage> {
                       controller: _nameController,
                       autofillHints: const [AutofillHints.name],
                       textInputAction: TextInputAction.next,
+                      validator: (value) {
+                        final name = value?.trim() ?? '';
+                        if (name.isEmpty) {
+                          return 'Please enter your full name';
+                        }
+
+                        if (name.length < 2) {
+                          return 'Name must be at least 2 characters';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 18),
                     AuthTextField(
@@ -124,13 +137,25 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 18),
                     AuthTextField(
-                      label: 'Phome Number (Optional)',
+                      label: 'Phone Number (Optional)',
                       hint: '+95 9 123 456 789',
                       keyboardType: TextInputType.phone,
                       prefixIcon: Icons.phone_outlined,
                       controller: _phoneController,
                       autofillHints: const [AutofillHints.telephoneNumber],
                       textInputAction: TextInputAction.next,
+                      validator: (value) {
+                        final phone = value?.trim() ?? '';
+
+                        if (phone.isEmpty) {
+                          return 'Please enter your phone';
+                        }
+
+                        if (phone.length < 7) {
+                          return 'Please enter a valid phone number';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 18),
                     AuthTextField(
@@ -220,7 +245,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 18),
                     RegisterLoginButton(
-                      label: 'Create Accont',
+                      label: 'Create Account.',
                       onPressed: _submit,
                     ),
                   ],
@@ -228,7 +253,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
 
               const SizedBox(height: 20),
-              RegisterLoginDevider(text: 'Or sign up with'),
+              RegisterLoginDivider(text: 'Or sign up with'),
               const SizedBox(height: 18),
               Row(
                 children: [

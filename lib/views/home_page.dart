@@ -1,16 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:internship_finder/models/job_model.dart';
 import 'package:internship_finder/providers/auth_provider.dart';
+import 'package:internship_finder/services/user_service.dart';
 import 'package:internship_finder/views/job_details_page.dart';
 import 'package:internship_finder/widgets/job_card.dart';
 import 'package:internship_finder/widgets/section_header.dart';
 import 'package:provider/provider.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final _userService = UserService();
+  @override
   Widget build(BuildContext context) {
+    final uid = context.watch<AuthController>().currentUser?.uid;
+
     List<JobModel> jobs = [
       JobModel(
         id: 1,
@@ -23,9 +32,9 @@ class HomePage extends StatelessWidget {
         createdAt: '3 days ago',
         type: 'internship',
         description:
-            'Join our mobile team to build and imrove Android and iOS application. You will work with experienced engineers and learn how to develop real-world apps.',
+            'Join our mobile team to build and improve Android and iOS application. You will work with experienced engineers and learn how to develop real-world apps.',
         responsibilities: [
-          'Develop and mantain Flutter mobile applications',
+          'Develop and maintain Flutter mobile applications',
           'Collaborate with cross-functional teams',
           'Participate in code reviews',
           'Learn and apply best practices',
@@ -33,7 +42,7 @@ class HomePage extends StatelessWidget {
         requirements: [
           'Currently enrolled in a university program',
           'Basic knowledge of flutter or Android/IOS',
-          'Good problem-sloving skills',
+          'Good problem-solving skills',
           'Passionate about mobile development',
         ],
         benefits: [''],
@@ -50,9 +59,9 @@ class HomePage extends StatelessWidget {
         duration: '3 months',
         type: 'Internship',
         description:
-            'Join our mobile team to build and imrove Android and iOS application. You will work with experienced engineers and learn how to develop real-world apps.',
+            'Join our mobile team to build and improve Android and iOS application. You will work with experienced engineers and learn how to develop real-world apps.',
         responsibilities: [
-          'Develop and mantain Flutter mobile applications',
+          'Develop and maintain Flutter mobile applications',
           'Collaborate with cross-functional teams',
           'Participate in code reviews',
           'Learn and apply best practices',
@@ -60,7 +69,7 @@ class HomePage extends StatelessWidget {
         requirements: [
           'Currently enrolled in a university program',
           'Basic knowledge of flutter or Android/IOS',
-          'Good problem-sloving skills',
+          'Good problem-solving skills',
           'Passionate about mobile development',
         ],
         benefits: [''],
@@ -77,9 +86,9 @@ class HomePage extends StatelessWidget {
         createdAt: '1 week ago',
         type: 'Internship',
         description:
-            'Join our mobile team to build and imrove Android and iOS application. You will work with experienced engineers and learn how to develop real-world apps.',
+            'Join our mobile team to build and improve Android and iOS application. You will work with experienced engineers and learn how to develop real-world apps.',
         responsibilities: [
-          'Develop and mantain Flutter mobile applications',
+          'Develop and maintain Flutter mobile applications',
           'Collaborate with cross-functional teams',
           'Participate in code reviews',
           'Learn and apply best practices',
@@ -87,7 +96,7 @@ class HomePage extends StatelessWidget {
         requirements: [
           'Currently enrolled in a university program',
           'Basic knowledge of flutter or Android/IOS',
-          'Good problem-sloving skills',
+          'Good problem-solving skills',
           'Passionate about mobile development',
         ],
         benefits: [''],
@@ -102,7 +111,28 @@ class HomePage extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  _buildHeaderSection(),
+                  if (uid != null)
+                    StreamBuilder<Map<String, dynamic>?>(
+                      stream: _userService.watchUserProfile(uid),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return const Text('Unable to load user details.');
+                        }
+
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const LinearProgressIndicator();
+                        }
+
+                        final profile = snapshot.data;
+
+                        if (profile == null) {
+                          return const Text('User profile not found.');
+                        }
+
+                        return _buildHeaderSection(context, uid);
+                      },
+                    ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -158,64 +188,101 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderSection() {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Hello, ",
-                style: TextStyle(color: Color(0xFF7B8495), fontSize: 17),
-              ),
-              const SizedBox(height: 3),
-              Row(
+  Widget _buildHeaderSection(BuildContext context, String? uid) {
+    if (uid == null) {
+      return const Text('Please log in to continue.');
+    }
+
+    return StreamBuilder<Map<String, dynamic>?>(
+      stream: _userService.watchUserProfile(uid),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const Text('Unable to load your profile.');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox(
+            height: 100,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final profile = snapshot.data;
+
+        if (profile == null) {
+          return const Text('Profile not found. Please complete your profile.');
+        }
+
+        final name = profile['name'] as String? ?? 'User';
+        final photoUrl = profile['photoUrl'] as String?;
+
+        return Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Thike Thike",
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  const Text(
+                    'Hello,',
+                    style: TextStyle(color: Color(0xFF7B8495), fontSize: 17),
                   ),
-                  const SizedBox(height: 4),
-                  Text('👋', style: TextStyle(fontSize: 24)),
+                  const SizedBox(height: 3),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          name,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const Text('👋', style: TextStyle(fontSize: 24)),
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+                  const Text(
+                    "Let's Build Future Together!",
+                    style: TextStyle(color: Color(0xFF7B8495), fontSize: 16),
+                  ),
                 ],
               ),
-
-              const SizedBox(height: 3),
-              Text(
-                "Lets Build Future together!",
-                style: TextStyle(color: Color(0xFF7B8495), fontSize: 20),
-              ),
-            ],
-          ),
-        ),
-        Stack(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.network(
-                "https://tse2.mm.bing.net/th/id/OIP.HarE69NbmjDkDvrfkBoHUQHaHa?r=0&pid=Api&h=220&P=0",
-                width: 60,
-                height: 60,
-                fit: BoxFit.cover,
-              ),
             ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: Container(
-                width: 20,
-                height: 20,
-                decoration: BoxDecoration(
-                  color: Colors.green,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 3),
+            const SizedBox(width: 12),
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: photoUrl != null && photoUrl.isNotEmpty
+                      ? Image.network(photoUrl)
+                      : Image.network(
+                          "https://tse2.mm.bing.net/th/id/OIP.HarE69NbmjDkDvrfkBoHUQHaHa?r=0&pid=Api&h=220&P=0",
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                        ),
                 ),
-              ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 3),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 
@@ -254,7 +321,7 @@ class HomePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Find Your\nDream Intership',
+                    'Find Your\nDream Internship',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 30,
@@ -317,14 +384,14 @@ class HomePage extends StatelessWidget {
           const SizedBox(width: 30),
           _buildCategoryItems(
             icon: Icons.business,
-            label: "Compaines",
+            label: "Companies",
             backgroundColor: Color(0xFFEFE5FF),
             iconColor: Color(0xFF8052D6),
           ),
           const SizedBox(width: 30),
           _buildCategoryItems(
             icon: Icons.menu_book,
-            label: "Learing",
+            label: "Learning",
             backgroundColor: Color(0xFFDDF8E9),
             iconColor: Color(0xFFD72D62),
           ),
